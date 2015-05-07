@@ -11,11 +11,20 @@ module.exports = function (req, res, next) {
 
   if (req.body.text) {
     // parse roll type if specified
-    matches = req.body.text.match(/^(\d{1,2})d(\d{1,3})$/);
+    matches = req.body.text.match(/^.r  *(\d{1,2})d(\d{1,3}) *([+-] *\d{1,3})* *$/);
 
     if (matches && matches[1] && matches[2]) {
       times = matches[1];
       die = matches[2];
+      if (matches[3]) {
+        adjust = matches[3].match(/^([+-]) *(\d{1,3})$/);
+        if (adjust && adjust[1] && adjust[2]) {
+          adjustSign = adjust[1];
+          adjustNumber = adjust[2];
+        };
+      } else {
+        adjust = 0;
+      }
 
     } else {
       // send error message back to user if input is bad
@@ -29,10 +38,20 @@ module.exports = function (req, res, next) {
     rolls.push(currentRoll);
     total += currentRoll;
   }
+  if (adjust && adjust[1] && adjust[2]) {
+    adjustInt = parseInt(adjust[1] + adjust[2]);
+    total += adjustInt
+  };
 
   // write response message and add to payload
-  botPayload.text = req.body.user_name + ' rolled ' + times + 'd' + die + ':\n' +
+  if (adjust) {
+      botPayload.text = req.body.user_name + ' rolled ' + times + 'd' + die + adjust[1] + '*' + adjust[2] + '*' + ':\n' +
+                    rolls.join(' + ') + ' ' + adjust[1] + ' *' + adjust[2] + '* = *' + total + '*';
+  } else{
+      botPayload.text = req.body.user_name + ' rolled ' + times + 'd' + die + ':\n' +
                     rolls.join(' + ') + ' = *' + total + '*';
+  };
+
 
   botPayload.username = 'dicebot';
   botPayload.channel = req.body.channel_id;
