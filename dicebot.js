@@ -52,7 +52,7 @@ module.exports = function (req, res, next) {
 
   // write response message and add to payload
 
-  botPayload.text = req.body.user_name + ' rolled ' + times + 'd' + die + adjustSign + '*' + adjustNumber + '*' + extraMessage + ':\n' +
+  botPayload.text = req.body.user_name + ' rolled ' + times + 'd' + die + adjustStr + extraMessage + ':\n' +
                     rolls.join(' + ') + adjustStr + ' = *' + total + '*';
 
 
