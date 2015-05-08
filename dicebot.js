@@ -11,6 +11,7 @@ module.exports = function (req, res, next) {
 
   if (req.body.text) {
     // parse roll type if specified
+    matches = req.body.text.match(/^.r  *(\d{1}\#)* *(\d{1,2})[dD](\d{1,3}) *([+-])* *(\d{1,3})* *([kK]\d{1})* *([\u4e00-\u9fa5A-Za-z0-9][\u4e00-\u9fa5A-Za-z0-9 ]*)*$/);
 
     if (matches && matches[2] && matches[3]) {
       times = matches[2];
