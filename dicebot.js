@@ -25,6 +25,21 @@ module.exports = function (req, res, next) {
       return res.status(200).send('.r <number>d<sides>');
     }
   }
+  // check adjust value
+  if (matches[4] && matches[5]) {
+    adjustInt = parseInt(adjustSign + adjustNumber);
+    adjustStr = ' ' + adjustSign + ' *' + adjustNumber + '*';
+  } else {
+    adjustInt = 0;
+    adjustStr = '';
+  };
+
+  // check extra message
+  if (matches && matches[7]) {
+    extraMessage = ' for *' + matches[7] + '*';
+  } else{
+    extraMessage = '';
+  };
 
   // roll dice and sum
   for (var i = 0; i < times; i++) {
@@ -32,19 +47,13 @@ module.exports = function (req, res, next) {
     rolls.push(currentRoll);
     total += currentRoll;
   }
-  if (matches[4] && matches[5]) {
-    adjustInt = parseInt(adjustSign + adjustNumber);
-    total += adjustInt
-  };
+  // add adjust value
+  total += adjustInt;
 
   // write response message and add to payload
-  if (matches[4] && matches[5]) {
-      botPayload.text = req.body.user_name + ' rolled ' + times + 'd' + die + adjustSign + '*' + adjustNumber + '*' + ':\n' +
-                    rolls.join(' + ') + ' ' + adjustSign + ' *' + adjustNumber + '* = *' + total + '*';
-  } else{
-      botPayload.text = req.body.user_name + ' rolled ' + times + 'd' + die + ':\n' +
-                    rolls.join(' + ') + ' = *' + total + '*';
-  };
+
+  botPayload.text = req.body.user_name + ' rolled ' + times + 'd' + die + adjustSign + '*' + adjustNumber + '*' + extraMessage + ':\n' +
+                    rolls.join(' + ') + adjustStr + ' = *' + total + '*';
 
 
   botPayload.username = 'dicebot';
