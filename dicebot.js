@@ -11,24 +11,18 @@ module.exports = function (req, res, next) {
 
   if (req.body.text) {
     // parse roll type if specified
-    matches = req.body.text.match(/^.r  *(\d{1,2})d(\d{1,3}) *([+-] *\d{1,3})* *$/);
+    matches = req.body.text.match(/^.r  *(\d{1}\#)* *(\d{1,2})[dD](\d{1,3}) *([+-])* *(\d{1,3})* *([kK]\d{1})* *([A-Za-z0-9][A-Za-z0-9]*)*$/);
 
-    if (matches && matches[1] && matches[2]) {
-      times = matches[1];
-      die = matches[2];
-      if (matches[3]) {
-        adjust = matches[3].match(/^([+-]) *(\d{1,3})$/);
-        if (adjust && adjust[1] && adjust[2]) {
-          adjustSign = adjust[1];
-          adjustNumber = adjust[2];
+    if (matches && matches[2] && matches[3]) {
+      times = matches[2];
+      die = matches[3];
+      if (matches[4] && matches[5]) {
+          adjustSign = matches[4];
+          adjustNumber = matches[5];
         };
-      } else {
-        adjust = 0;
-      }
-
     } else {
       // send error message back to user if input is bad
-      return res.status(200).send('<number>d<sides>');
+      return res.status(200).send('.r <number>d<sides>');
     }
   }
 
@@ -38,15 +32,15 @@ module.exports = function (req, res, next) {
     rolls.push(currentRoll);
     total += currentRoll;
   }
-  if (adjust && adjust[1] && adjust[2]) {
-    adjustInt = parseInt(adjust[1] + adjust[2]);
+  if (matches[4] && matches[5]) {
+    adjustInt = parseInt(adjustSign + adjustNumber);
     total += adjustInt
   };
 
   // write response message and add to payload
-  if (adjust) {
-      botPayload.text = req.body.user_name + ' rolled ' + times + 'd' + die + adjust[1] + '*' + adjust[2] + '*' + ':\n' +
-                    rolls.join(' + ') + ' ' + adjust[1] + ' *' + adjust[2] + '* = *' + total + '*';
+  if (matches[4] && matches[5]) {
+      botPayload.text = req.body.user_name + ' rolled ' + times + 'd' + die + adjustSign + '*' + adjustNumber + '*' + ':\n' +
+                    rolls.join(' + ') + ' ' + adjustSign + ' *' + adjustNumber + '* = *' + total + '*';
   } else{
       botPayload.text = req.body.user_name + ' rolled ' + times + 'd' + die + ':\n' +
                     rolls.join(' + ') + ' = *' + total + '*';
